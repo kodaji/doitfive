@@ -1,0 +1,62 @@
+## CKPush BackOffice개발 환경 라이센스
+CKPush Backoffice 서비스시 필요한 환경및 사용 라이브러리에 대한 라이센스 정리 이다.
+
+## 목록
+### Java
+- Oracle JAVA : http://www.oracle.com/technetwork/java/javase/terms/license/index.html
+- OpenJDK : http://openjdk.java.net/legal/gplv2+ce.html
+- Oracle JAVA나 OpenJDK 둘 중 하나 사용 가능
+
+### Spring (아파치 라이센스 2.0)
+- http://www.apache.org/licenses/LICENSE-2.0
+
+### freemarker (아파치 라이센스 2.0)
+- http://freemarker.org/docs/app_license.html
+
+### SLF4J (MIT 라이센스)
+- http://www.slf4j.org/license.html
+ 
+### logback (EPL/LGPL dual 라이센스)
+- http://logback.qos.ch/license.html
+- LGPL 코드를 정적 또는 동적 라이브리로 사용
+ 
+### mybatis (아파치 라이센스 2.0)
+- https://mybatis.github.io/spring/ko/license.html
+ 
+### Jedis
+- https://github.com/xetorthio/jedis/blob/master/LICENSE.txt
+ 
+### JSON lib (아파치 라이센스 2.0)
+- http://json-lib.sourceforge.net/license.html
+ 
+### Jackson JSON (아파치 라이센스 2.0)
+- https://github.com/FasterXML/jackson-core
+ 
+### Apache HTTP Component (아파치 라이센스 2.0)
+- http://hc.apache.org/httpcomponents-core-ga/license.html
+ 
+### Hibernate (LGPL 2.1 or ASL 2.0)
+- http://hibernate.org/community/license/
+- LGPL 코드를 정적 또는 동적 라이브리로 사용
+ 
+### Apache Commons (아파치 라이센스 2.0)
+- http://commons.apache.org/proper/commons-daemon/license.html
+ 
+### Joda Time (아파치 라이센스 2.0)
+- http://joda-time.sourceforge.net/license.html
+ 
+### Apache Tika (아파치 라이센스 2.0)
+- https://tika.apache.org/license.html
+ 
+### JUnit (EPL 1.0)
+- http://junit.org/license.html
+- 소스 코드 수정 없음
+ 
+### mockito (MIT 라이센스)
+- https://github.com/mockito/mockito/blob/master/LICENSE
+ 
+### lombok (MIT 라이센스)
+- https://projectlombok.org
+ 
+### Apache log4j (아파치 라이센스 2.0)
+- https://logging.apache.org/log4j/1.2/license.html

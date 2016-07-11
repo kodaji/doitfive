@@ -1,0 +1,96 @@
+## 이력
+1. 2015.07.13 : 신규 추가
+
+## 설명
+회원 모듈을 포함하지 않는 Push 발송시에 단말기의 Push ID를 등록/수정 한다.
+
+## 요청
+### 메소드
+PUT 방식으로 요청 해야 한다.
+
+### 헤더
+다음 헤더를 포함해야 한다.
+
+- Accept: application/json
+- Content-Type: application/json;charset=UTF-8
+- X-Access-Token : [인증키]
+
+### 요청 URL
+접속 도메인(dev.ckpush.com)과 접속 도메인 다음 등장하는 Path(/1/)는 설치되는 서비스에 따라 변경 된다.
+
+```html
+http://dev.ckpush.com/1/dapi/push/reg/psid/t/<tid>
+```
+
+- tid : {string} transaction id
+
+### 요청 JSON
+요청시 전달되는 값은 JSON 형태로 전달해야 하며 다음 값을 사용 할 수 있다.
+
+- push_id : (mandatory) {string} 단말의 Push ID.
+
+push_id 는 다음 값이 사용 된다.
+
+- Android : GCM 발송을 위한 GCM RID
+- iOS : APNs를 위한 Device token
+
+### 요청 예제
+```javascript
+var data = {
+    push_id: "97f3a0ac63354d0abf361846f98232c1ddd"
+};
+$.ajax({
+    type: 'PUT',
+    url: 'http://dev.ckpush.com/1/dapi/push/reg/psid/t/1',
+    data: JSON.stringify(data),
+    beforeSend: function(request) {
+        request.setRequestHeader('Accept', 'application/json');
+        request.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+        request.setRequestHeader('X-Acess-Token', 'd145fa579fbd44d2a87914d0fdb40faa');
+    },
+    success: function(data, textStatus, jqXHR) {
+        console.log('success');
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+        console.log('failed');
+    }
+});
+```
+
+## 응답
+### 응답 결과
+JSON 값으로 응답 한다. 만일 요청 Accept 가 application/json 이 아니면 의미없는 응답 결과가 전달 된다. ck_error 값이 S000001 이 아니면 실패 이다.
+
+### 성공
+- ck_tid : {string} 요청시 전달한 transaction id
+- ck_error : {string} 응답 코드
+- ck_message : {string} 응답 메시지
+
+```json
+{
+    "ck_error": "S000001",
+    "ck_tid": "1",
+    "ck_message": "성공"
+}
+```
+
+### 실패
+```json
+{
+    "ck_request_uri": "/1/dapi/push/reg/psid/t/1",
+    "ck_error": "E000308",
+    "ck_method": "PUT",
+    "ck_tid": "1",
+    "ck_message": "Push ID 등록을 실패 했습니다.",
+    "ck_reason": {
+        "invalid": "invalid request(H1)"
+    }
+}
+```
+
+## 에러
+### 에러 코드
+[에러 코드](에러 코드) 문서 참조
+
+### 에러 구분키
+- H1 : push_id를 request body에 포함시키지 않음

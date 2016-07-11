@@ -1,0 +1,7 @@
+## JAVA properties 파일의 한글 출력
+플러그인 설치 필요 없이 인텔리J에서 기본으로 한글 출력을 지원 한다. 다음 옵션을 체크 하도록 하자.
+
+1. 인텔리J 설정 > Editor > File Encodings 로 이동
+2. 창 하단의 Transparent native-to-ascii conversion을 체크
+
+기본 설정은 체크 되어있지 않기 때문에 한글 출력되지 않고 유니코드로 나오는 것이다.

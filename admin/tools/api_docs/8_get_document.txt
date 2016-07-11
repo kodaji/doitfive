@@ -1,0 +1,186 @@
+## 이력
+1. 2015.09.04 : 신규 추가
+
+## 설명
+게시물 정보를 확인 한다. 일반 게시물을 확인하는데 사용 된다. 링크 게시물은 링크 게시물에 포함된 일반 게시물 시리얼 넘버를 이용하여 확인 하면 된다.
+
+[게시물 리스트 API](게시물 리스트(list_document))의 게시물 항목에는 link_document가 존재하는데 게시물 확인에는 link_document가 존재하지 않는다. 그외의 모든 항목은 [게시물 리스트 API](게시물 리스트(list_document))에 포함된 게시물 항목과 동일 하다.
+
+## 요청
+### 메소드
+GET 방식으로 요청 해야 한다.
+
+### 헤더
+다음 헤더를 포함해야 한다.
+
+- Accept: application/json
+- X-Access-Token : [접속 토큰 발급 API](접속 토큰 발급(create_access_token)) 으로 발급된 접속 토큰
+
+### 요청 URL
+접속 도메인(dev.ckpush.com)과 접속 도메인 다음 등장하는 Path(/1/)는 설치되는 서비스에 따라 변경 된다.
+
+```html
+http://dev.ckpush.com/1/api/document/<document_srl>/t/<tid>
+```
+
+- document_srl : {numeric} 조회할 게시물 시리얼 넘버 또는 조회할 링크 게시물의 링크 시리얼 넘버
+- tid : {string} transaction id
+
+### 요청 예제
+```javascript
+$.ajax({
+    type: 'GET',
+    url: 'http://dev.ckpush.com/1/api/document/413/t/1',
+    beforeSend: function(request) {
+        request.setRequestHeader('Accept', 'application/json');
+        request.setRequestHeader('X-Access-Token', '1e1596d352fa475497f87c8bf942e4bf');
+    },
+    success: function(data, textStatus, jqXHR) {
+        console.log('success');
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+        console.log('failed');
+    }
+});
+```
+
+## 응답
+### 응답 결과
+JSON 값으로 응답 한다. 만일 요청 Accept 가 application/json 이 아니면 의미없는 응답 결과가 전달 된다. ck_error 값이 S000001 이 아니면 실패 이다.
+
+- ck_tid : {string} 요청시 전달한 transaction id
+- ck_error : {string} 응답 코드
+- ck_message : {string} 응답 메시지
+- document : {map} 게시물 정보
+   + document_srl : {numeric} 게시물 시리얼 넘버
+   + category_srl : {numeric} 카테고리 시리얼 넘버
+   + title : {string} 게시물 제목
+   + content : {string} 게시물 본문. request 시에 opt_content가 false 이면 empty string으로 고정 된다
+   + link : {string} 게시물에 지정된 외부 링크
+   + read_count : {numeric} 게시물 조회 카운트
+   + comment_count : {numeric} 게시물에 달린 댓글 카운트
+   + like_count : {numeric} 게시물 좋아요 카운트
+   + blame_count : {numeric} 게시물 싫어요 카운트
+   + file_count : {numeric} 첨부 파일 카운트
+   + allow_comment : {boolean} 댓글 달기 허용 여부. true이면 댓글 달기 허용, false이면 비허용
+   + is_notice : {boolean} 공지 사항 여부. true이면 공지 게시물, false이면 일반 게시물
+   + user_id : {string} 게시물 작성자의 사용자 아이디
+   + user_name : {string} 게시물 작성자의 이름
+   + nick_name : {string} 게시물 작성자의 별명
+   + email_address : {string} 게시물 작성자의 메일 주소
+   + ipaddress : {string} 게시물을 등록한 아이피 주소
+   + u_date : {numeric} 게시물 수정일. unix timestamp 형태
+   + c_date : {numeric} 게시물 작성일. unix timestamp 형태
+   + template : {map} 게시물에서 사용되는 템플릿 값. 포함되는 map 요소는 템플릿에 따라서 달라진다
+   + tags : {list} 게시물 태그 리스트. 관리자용 태그는 출력 되지 않는다
+      * tag_srl : {numeric} 태그 시리얼 넘버
+      * tag_name : {string} 태그 이름
+   + attach : {list} 첨부 파일 리스트
+      * file_url : {string} 첨부 파일 URL
+      * file_srl : {numeric} 첨부 파일 시리얼 넘버
+      * orig_name : {string} 첨부 파일 원본 이름
+      * file_comment : {string} 첨부 파일 코멘트
+      * height : {numeric} 첨부 파일이 이미지 일때 이미지 높이
+      * width : {numeric} 첨부 파일이 이미지 일때 이미지 너비
+      * mime_type : {string} 첨부 파일의 마임 타입
+      * file_size : {numeric} 첨부 파일의 파일 사이즈
+
+### 성공
+- 일반 게시물 리스트 일때 ( link_document에 값이 존재하지 않음 )
+
+```json
+{
+    "ck_error": "S000001",
+    "ck_tid": "1",
+    "ck_message": "성공",
+    "document": {
+        "is_notice": false,
+        "link": "",
+        "title": "게시물2",
+        "tags": [
+            {
+                "tag_srl": 140,
+                "tag_name": "태그1"
+            },
+            {
+                "tag_srl": 125,
+                "tag_name": "사용자 태그"
+            }
+        ],
+        "user_id": "dhkim@ckstack.com",
+        "like_count": 0,
+        "template": {
+            "kid_location": "어린이집에 있어요."
+        },
+        "u_date": 1441007208,
+        "allow_comment": true,
+        "blame_count": 0,
+        "category_srl": 85,
+        "document_srl": 413,
+        "attach": [
+            {
+                "file_url": "http://localhost:8080/resource/show/image/document/53",
+                "file_srl": 53,
+                "orig_name": "001.jpg",
+                "file_comment": "",
+                "height": 331,
+                "width": 500,
+                "mime_type": "image/jpeg",
+                "file_size": 85647
+            },
+            {
+                "file_url": "http://localhost:8080/resource/show/image/document/54",
+                "file_srl": 54,
+                "orig_name": "002.jpg",
+                "file_comment": "",
+                "height": 331,
+                "width": 500,
+                "mime_type": "image/jpeg",
+                "file_size": 72157
+            },
+            {
+                "file_url": "http://localhost:8080/resource/show/image/document/55",
+                "file_srl": 55,
+                "orig_name": "003.jpg",
+                "file_comment": "",
+                "height": 329,
+                "width": 500,
+                "mime_type": "image/jpeg",
+                "file_size": 61118
+            }
+        ],
+        "c_date": 1441007208,
+        "ipaddress": "0:0:0:0:0:0:0:1",
+        "nick_name": "김대희",
+        "read_count": 0,
+        "email_address": "dhkim@ckstack.com",
+        "file_count": 3,
+        "comment_count": 0,
+        "content": "<p>첨부 파일 포함.</p>",
+        "user_name": "김대희"
+    }
+}
+```
+
+### 실패
+```json
+{
+    "ck_request_uri": "/1/api/document/413/t/1",
+    "ck_error": "E000617",
+    "ck_method": "GET",
+    "ck_tid": "1",
+    "ck_message": "게시물 읽기를 실패 했습니다.",
+    "ck_reason": {
+        "invalid": "invalid request(H2)"
+    }
+}
+```
+
+## 에러
+### 에러 코드
+[에러 코드](에러 코드) 문서 참조
+
+### 에러 구분키
+- H1 : 존재하지 않는 게시물 임
+- H2 : 차단된 게시물
+- H3 : 비밀글을 소유자 외의 사람이 읽기 시도

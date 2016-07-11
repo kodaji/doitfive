@@ -1,0 +1,84 @@
+## 이력
+1. 2015.10.08 : 신규 추가
+
+## 설명
+발급 받은 접속 토큰 활성 시간을 연장 한다.
+
+## 요청
+### 메소드
+GET 방식으로 요청 해야 한다.
+
+### 헤더
+다음 헤더를 포함해야 한다.
+
+- Accept: application/json
+
+### 요청 URL
+접속 도메인(dev.ckpush.com)과 접속 도메인 다음 등장하는 Path(/1/)는 설치되는 서비스에 따라 변경 된다.
+
+```html
+http://dev.ckpush.com/1/api/open/token/expire/up/t/<tid>
+```
+
+- tid : {string} transaction id
+
+### 요청 예제
+```javascript
+$.ajax({
+    type: 'GET',
+    url: 'http://dev.ckpush.com/1/api/open/token/expire/up/t/1',
+    beforeSend: function(request) {
+        request.setRequestHeader('Accept', 'application/json');
+        request.setRequestHeader('X-Access-Token', 'b366f9b7c370467baaa8feed0e0cefcf');
+    },
+    success: function(data, textStatus, jqXHR) {
+        console.log('success');
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+        console.log('failed');
+    }
+});
+```
+
+## 응답
+### 응답 결과
+JSON 값으로 응답 한다. ck_error 값이 S000001 이 아니면 실패 이다.
+
+- ck_tid : {string} 요청시 전달한 transaction id
+- ck_error : {string} 응답 코드
+- ck_message : {string} 응답 메시지
+- access_token_expire : {numeric} 접속 토큰의 유지 시간. 초 단위
+
+연장된 access token 의 유지 시간은 응답의 header 값으로도 전달 된다. 해당 사항은 [API 공통 처리]( API 공통 처리) 참고 한다.
+
+### 성공
+```json
+{
+    "ck_error": "S000001",
+    "ck_tid": "1",
+    "ck_message": "성공",
+    "access_token_expire": 3600
+}
+```
+
+### 실패
+```json
+{
+    "ck_request_uri": "/1/api/open/token/expire/up/t/1",
+    "ck_error": "E000019",
+    "ck_method": "GET",
+    "ck_tid": "1",
+    "ck_message": "인증키 연장을 실패 했습니다.",
+    "ck_reason": {
+        "invalid": "invalid request(H2)"
+    }
+}
+```
+
+## 에러
+### 에러 코드
+[에러 코드](에러 코드) 문서 참조
+
+### 에러 구분키
+- H1 : request Header에 X-Access-Token이 존재하지 않음
+- H2 : 존재하지 않는 access_token으로 활성 시간 연장 요청함

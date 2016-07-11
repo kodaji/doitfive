@@ -1,0 +1,176 @@
+## 이력
+1. 2015.08.19 : 신규 추가
+
+## 설명
+CKPush에 일반 사용자를 등록 한다. CKPush의 기본 가입 API 이다. 본 API는 다음 기능을 제공 한다.
+
+1. 일반 사용자 가입
+2. 사용자 가입
+3. 사용자 단말 등록 ( Push ID 등록 포함 )
+4. 인증키 생성 ( 로그인 )
+
+## 요청
+### 메소드
+POST 방식으로 요청 해야 한다.
+
+### 헤더
+다음 헤더를 포함해야 한다. X-Api-Key, X-Api-Secret는 CKPush Backoffice를 통해서 생성된 값을 사용 한다.
+
+- Accept: application/json
+- Content-Type: application/json;charset=UTF-8
+- X-Api-Key : [사용자를 등록하려는 앱의 api key]
+- X-Api-Secret : [사용자를 등록하려는 앱의 api secret]
+- X-Social-Type : [소셜 연동으로 가입 할때 소셜 종류]
+
+NOTE:
+
+X-Social-Type은 다음 값을 사용 한다.
+
+- -1 : 소셜 인증을 통한 가입 아님
+- 1 : 카카오톡 인증을 통한 가입
+- 2 : 페이스북 인증을 통한 가입
+- 3 : 트위터 인증을 통한 가입
+- 4 : 구글 인증을 통한 가입
+- 5 : 네이버 인증을 통한 가입
+- 6 : 다음 인증을 통한 가입
+
+### 요청 URL
+접속 도메인(dev.ckpush.com)과 접속 도메인 다음 등장하는 Path(/1/)는 설치되는 서비스에 따라 변경 된다.
+
+```html
+http://dev.ckpush.com/1/api/open/signup/t/<tid>
+```
+
+- tid : {string} transaction id
+
+### 요청 JSON
+요청시 전달되는 값은 JSON 형태로 전달해야 하며 다음 값을 사용 할 수 있다.
+
+- user_id : (mandatory) {string} 가입할 사용자 아이디. 소셜 연동 일때는 소셜에서 받은 사용자 고유 번호
+- user_password : (mandatory) {string} 사용자 패스워드. md5 인코딩을 적용한 값
+- user_name : (mandatory) {string} 사용자 이름
+- nick_name : (optional) {string} 사용자 별명. 만일 존재하지 않는다면 user_name과 동일한 값으로 자동 설정됨
+- email_address : (optional) {string} 사용자 이메일 주소
+- mobile_phone_number : (optional) {string} 사용자 전화 번호
+- profile_file_srl : (optional) {numeric} 프로필 사진을 CKPush에 등록 했다면 등록된 프로필 사진의 파일 시리얼 넘버
+- profile_file_url : (optional) {string} 소셜 연동으로 가입 했다면 소셜에서 받은 사용자 프로필 사진의 URL
+- device_id : (optional) {string} 등록하려는 단말의 아이디. 최소 32byte, 최대 64byte 값이다.
+- model : (optional) {string} 등록하려는 단말의 모델명.
+- os_version : (optional) {string} 등록하려는 단말의 OS 버전
+- push_id : (optional) {string} Push를 위한 아이디. Android: GCM RID, iOS: Device Token
+- type : (optional) {numeric} 단말의 종류
+
+NOTE:
+
+프로필 사진은 다음 3가지 경우의 사용이 가능 하다.
+
+1. 가입시 사용자 프로필 사진을 CKPush에 업로드 하였다면 profile_file_srl에 사용자 프로필 사진의 파일 시리얼 넘버를 사용하고, profile_file_url은 사용하지 않는다. 
+2. 소셜(페이스북, 트윗)을 통한 연동으로 가입 했다면 profile_file_url에 소셜에서 받은 프로필 사진 URL을 사용하고, profile_file_srl은 사용하지 않는다.
+3. 프로필 사진을 등록하지 않는다면 profile_file_srl, profile_file_url 모두 사용하지 않는다.
+
+NOTE :
+
+단말을 등록과 Push ID를 등록 하려면 device_id, type 값은 필수로 존재해야 한다. 만일 device_id, type 값이 존재하지 않으면 model, os_version, push_id 는 모두 무시 된다. 즉, 단말 등록및 Push ID 등록은 진행 되지 않는다.
+
+NOTE:
+
+type은 다음 값을 사용 한다.
+
+- 1 : Android OS 단말
+- 2 : iOS 단말
+
+### 요청 예제
+```javascript
+var data = {
+    user_id: "dhkim1@ckstack.com",
+    user_name: "홍길동",
+    user_password: "e19d5cd5af0378da05f63f891c7467af"
+};
+$.ajax({
+    type: 'POST',
+    url: 'http://dev.ckpush.com/1/api/open/signup/t/1',
+    data: JSON.stringify(data),
+    beforeSend: function(request) {
+        request.setRequestHeader('Accept', 'application/json');
+        request.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+        request.setRequestHeader('X-Api-Key', '5e7bb99424124b3b94341af47ae1f0e6');
+        request.setRequestHeader('X-Api-Secret', '97f3a0ac63354d0abf361846f98232ca');
+        request.setRequestHeader('X-Social-Type', '-1');
+    },
+    success: function(data, textStatus, jqXHR) {
+        console.log('success');
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+        console.log('failed');
+    }
+});
+```
+
+## 응답
+### 응답 결과
+JSON 값으로 응답 한다. ck_error 값이 S000001 이 아니면 실패 이다.
+
+- ck_tid : {string} 요청시 전달한 transaction id
+- ck_error : {string} 응답 코드
+- ck_message : {string} 응답 메시지
+- member_srl : {numeric} 등록된 사용자 시리얼 넘버
+- access_token : {string} 접속 토큰
+- access_token_expire : {numeric} 접속 토큰의 유지 시간. 초 단위
+
+발급된 access token 과 access token 의 유지 시간은 응답의 header 값으로도 전달 된다. 해당 사항은 [API 공통 처리]( API 공통 처리) 참고 한다.
+
+### 성공
+```json
+{
+    "ck_error": "S000001",
+    "ck_tid": "1",
+    "member_srl": 443,
+    "ck_message": "성공",
+    "access_token_expire": 3600,
+    "access_token": "9d4d4ef18ba3487f8d427f13d5affe47"
+}
+```
+
+### 실패
+```json
+{
+    "ck_request_uri": "/1/api/open/signup/t/1",
+    "ck_error": "E000202",
+    "ck_method": "POST",
+    "ck_tid": "1",
+    "ck_message": "사용자 추가를 실패 했습니다.",
+    "ck_reason": {
+        "user_id": "duplicated user id"
+    }
+}
+```
+
+## 에러
+### 에러 코드
+[에러 코드](에러 코드) 문서 참조
+
+### 에러 구분키
+- E1 : user_id를 request시에 포함시키지 않음
+- E2 : user_id의 길이는 최소 4에서 128까지 인데, 길이가 미만이거나 초과됨
+- E3 : user_id에 제한된 문자를 사용함. user_id는 1byte charactor만 사용 가능하다.
+- E4 : user_password를 request시에 포함시키지 않음
+- E5 : user_password의 길이는 최소 4에서 128까지 인데, 길이가 미만이거나 초과됨. md5 한 것의 길이 체크 이기 때문에 원본의 길이가 아님.  서버에서는 패스워드를 알 수 없기 때문에 원본의 길이 체크를 할 수 없음
+- E6 : user_password에 제한된 문자를 사용함. user_id는 1byte charactor만 사용 가능하다.
+- E7 : user_name을 request시에 포함시키지 않음
+- E8 : user_name의 길이는 최소 2이상 이어야 함
+- E9 : user_name은 최소 2바이트에서 최대 64바이트 사이어야 함.
+- E10 : nick_name의 최대 크기는 64바이트  이하이어야 함
+- E11 : email_address가 메일 주소 포맷이 아님
+- E12 : device_id의 최대 크기인 64byte를 초과 함
+- E13 : model의 최대 크기인 128byte를 초과 함
+- E14 : os_version의 최대 크기인 32byte를 초과 함
+- H1 : request Header에 X-Api-Key가 존재하지 않음
+- H2 : X-Api-Key 값이 trim시에 empty string임
+- H3 : request Header에 X-Api-Secret가 존재하지 않음
+- H4 : X-Api-Secret 값이 trim시에 empty string임
+- H5 : api key 에 맞는 앱이 존재하지 않음
+- H6 : api key 에 맞지 않는 api secret 임
+- H7 : request Header에 X-Social-Type이 존재하지 않음
+- H8 : X-Social-Type 값이 trim시에 empty string임
+- H9 : X-Social-Type값이 지원하지 않는 소셜 타입임
+- H11 : 비 활성된 앱에 가입 시도

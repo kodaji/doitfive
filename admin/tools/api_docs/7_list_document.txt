@@ -1,0 +1,658 @@
+## 이력
+1. 2015.08.31 : 신규 추가
+2. 2015.09.02
+   - 일반 게시물 리스트 태그 검색 기능 추가
+   - 링크 게시물 리스트 기능 추가
+3. 2015.09.04
+   - 링크 게시물 리스트 태그 검색 기능 추가
+   - 일반 게시물 리스트 태그 검색 버그 수정
+4. 2015.09.14
+   - 게시판 비활성 여부 체크 추가
+   - 비밀글 여부 판단 항목 추가
+   - 응답 항목에 카테고리 이름 추가
+5. 2015.09.15
+   - 응답 항목에 카테고리 시리얼 넘버 추가
+
+## 설명
+카테고리 내의 게시물 리스트를 구한다. 일반 카테고리, 링크 카테고리 구분 없이 사용 가능 하다. 만약 카테고리에 공지사항 게시물이 존재하면 공지 사항 게시물은 항상 게시물 처음에 등장 되도록 자동 정렬 된다.
+
+일반 카테고리에서 구한 게시물 리스트에는 link_document 가 empty map 으로 값이 고정 되고, 링크 카테고리에서 구한 링크 게시물 리스트에는 link_document가 링크 정보를 포함하고 있다.
+
+게시물이 비밀글 일때 게시물을 작성한 사용자에게만 게시물은 리스팅 되며 나머지 사람에게는 리스팅 되지 않는다.
+
+## 요청
+### 메소드
+POST 방식으로 요청 해야 한다.
+
+### 헤더
+다음 헤더를 포함해야 한다.
+
+- Accept: application/json
+- Content-Type: application/json;charset=UTF-8
+- X-Access-Token : [접속 토큰 발급 API](접속 토큰 발급(create_access_token)) 으로 발급된 접속 토큰
+
+### 요청 URL
+접속 도메인(dev.ckpush.com)과 접속 도메인 다음 등장하는 Path(/1/)는 설치되는 서비스에 따라 변경 된다.
+
+```html
+http://dev.ckpush.com/1/api/document/list/t/<tid>
+```
+
+- tid : {string} transaction id
+
+### 요청 JSON
+요청시 전달되는 값은 JSON 형태로 전달해야 하며 다음 값을 사용 할 수 있다.
+
+- category_srl : (mandatory) {numeric} 게시물 리스트를 구할 카테고리 시리얼 넘버
+- title : (optional) {string} 게시물 제목 검색 조건. 게시물 제목 첫글자 부터 like 검색 한다
+- tags : (optional) {numeric list} 게시물 태그 검색 조건. 검색할 태그 시리얼 넘버 리스트
+- sort : (optional) {map} 정렬 조건
+- offset : (optional) {numeric} 리스트의 offset. mysql의 offset 개념과 동일
+- limit : (optional) {numeric} 리스트의 limit. mysql의 limit 개념과 동일
+- opt_content : (optional) {boolean} 게시물 리스트에 게시물 본문 포함 여부. true이면 게시물 본문 포함, false이면 포함하지 않음
+
+NOTE:
+
+sort 는 게시물 리스트의 검색 조건이며 다음 형태로 사용 가능 하다. 다음 값으로 정렬 가능 하다. 만일 sort가 없다면 게시물 생성 순서로 정렬 된다.(공지 사항 게시물은 정렬값 상관 없이 항상 리스트 최상위에 등장 한다.)
+
+- title : 게시물 제목으로 리스트 정렬
+- list_order : 관리자가 지정한 임의의 순서로 리스트 정렬
+- document_srl : 게시물 생성 순서로 리스트 정렬. 링크 게시물 리스트 일때는 내부에서  document_link_srl 로 자동 변환 된다. 즉 링크 게시물의  document_srl 정렬은 실제로 document_link_srl 정렬이 된다.
+
+아래 예제는 게시물 제목으로 DESC 정렬 하고 난 다음 게시물 생성 순서로 ASC 정렬 하는 것이다.
+
+```json
+{
+    "title" : "desc",
+    "document_srl" : "asc"
+}
+```
+
+NOTE:
+
+offset, limit 에 아래 값이 들어가면 특별하게 동작하게 된다.
+
+- offset 의 값이 없으면 0으로 취급 한다.
+- limit 의 값이 0 이거나 없으면 전체로 취급하여 offset 값을 무시하고 모든 게시물을 select 하여 리스트로 뿌린다. 이런 경우에 response 의 limit, offset 값은 -1 이다.
+
+### 요청 예제
+```javascript
+var data = {
+    category_srl: 85
+};
+$.ajax({
+    type: 'POST',
+    url: 'http://dev.ckpush.com/1/api/document/list/t/1',
+    data: JSON.stringify(data),
+    beforeSend: function(request) {
+        request.setRequestHeader('Accept', 'application/json');
+        request.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+        request.setRequestHeader('X-Access-Token', '1e1596d352fa475497f87c8bf942e4bf');
+    },
+    success: function(data, textStatus, jqXHR) {
+        console.log('success');
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+        console.log('failed');
+    }
+});
+```
+
+NOTE:
+
+태그로 일반 게시물 검색
+
+```json
+{
+    "category_srl" : 85,
+    "tags" : [140]
+}
+```
+
+## 응답
+### 응답 결과
+JSON 값으로 응답 한다. 만일 요청 Accept 가 application/json 이 아니면 의미없는 응답 결과가 전달 된다. ck_error 값이 S000001 이 아니면 실패 이다.
+
+- ck_tid : {string} 요청시 전달한 transaction id
+- ck_error : {string} 응답 코드
+- ck_message : {string} 응답 메시지
+- category_srl : {numeric} 카테고리 시리얼 넘버
+- category_name : {string} 카테고리 이름
+- total_rows : {numeric} 게시물의 전체 개수. 만일 검색을 한다면 검색된 게시물의 전체 개수가 된다
+- offset : {numeric} 결과 리스트의 offset. 만일 -1이면 request시에 의미 없는 offset을 사용
+- limit : {numeric} 결과 리스트의 limit. 만일 -1이면 request시에 의미 없는 offset을 사용
+- documents : {list} 게시물 리스트
+   + link_document : {map} 링크 게시물 리스트를 확인 볼때 링크 정보
+      * link_srl : {numeric} 링크 게시물 시리얼 넘버
+      * category_srl : {numeric} 링크 게시물의 카테고리 시리얼 넘버
+   + document_srl : {numeric} 게시물 시리얼 넘버
+   + category_srl : {numeric} 카테고리 시리얼 넘버
+   + title : {string} 게시물 제목
+   + content : {string} 게시물 본문. request 시에 opt_content가 false 이면 empty string으로 고정 된다
+   + link : {string} 게시물에 지정된 외부 링크
+   + read_count : {numeric} 게시물 조회 카운트
+   + comment_count : {numeric} 게시물에 달린 댓글 카운트
+   + like_count : {numeric} 게시물 좋아요 카운트
+   + blame_count : {numeric} 게시물 싫어요 카운트
+   + file_count : {numeric} 첨부 파일 카운트
+   + allow_comment : {boolean} 댓글 달기 허용 여부. true이면 댓글 달기 허용, false이면 비허용
+   + is_notice : {boolean} 공지 사항 여부. true이면 공지 게시물, false이면 일반 게시물
+   + is_secret : {boolean} 비밀글 여부. true이면 비밀글, false이면 비밀글 아님
+   + user_id : {string} 게시물 작성자의 사용자 아이디
+   + user_name : {string} 게시물 작성자의 이름
+   + nick_name : {string} 게시물 작성자의 별명
+   + email_address : {string} 게시물 작성자의 메일 주소
+   + ipaddress : {string} 게시물을 등록한 아이피 주소
+   + u_date : {numeric} 게시물 수정일. unix timestamp 형태
+   + c_date : {numeric} 게시물 작성일. unix timestamp 형태
+   + template : {map} 게시물에서 사용되는 템플릿 값. 포함되는 map 요소는 템플릿에 따라서 달라진다
+   + tags : {list} 게시물 태그 리스트. 관리자용 태그는 출력 되지 않는다
+      * tag_srl : {numeric} 태그 시리얼 넘버
+      * tag_name : {string} 태그 이름
+	+ attach : {list} 첨부 파일 리스트
+      * file_url : {string} 첨부 파일 URL
+      * file_srl : {numeric} 첨부 파일 시리얼 넘버
+      * orig_name : {string} 첨부 파일 원본 이름
+      * file_comment : {string} 첨부 파일 코멘트
+      * height : {numeric} 첨부 파일이 이미지 일때 이미지 높이
+      * width : {numeric} 첨부 파일이 이미지 일때 이미지 너비
+      * mime_type : {string} 첨부 파일의 마임 타입
+      * file_size : {numeric} 첨부 파일의 파일 사이즈
+
+### 성공
+- 일반 게시물 리스트 일때 ( link_document에 값이 존재하지 않음 )
+
+```json
+{
+    "total_rows": 7,
+    "category_srl": 85,
+    "category_name": "테스트 카테고리2",
+    "limit": -1,
+    "documents": [
+        {
+            "is_notice": true,
+            "link": "",
+            "title": "후...태그 테스트",
+            "tags": [
+                {
+                    "tag_srl": 140,
+                    "tag_name": "태그1"
+                },
+                {
+                    "tag_srl": 133,
+                    "tag_name": "테스트"
+                },
+                {
+                    "tag_srl": 132,
+                    "tag_name": "유저"
+                },
+                {
+                    "tag_srl": 125,
+                    "tag_name": "사용자 태그"
+                }
+            ],
+            "user_id": "dhkim@ckstack.com",
+            "link_document": {
+
+            },
+            "is_secret": false,
+            "like_count": 0,
+            "template": {
+
+            },
+            "u_date": 1439445051,
+            "allow_comment": true,
+            "blame_count": 0,
+            "category_srl": 85,
+            "document_srl": 21,
+            "attach": [
+
+            ],
+            "c_date": 1439445051,
+            "ipaddress": "0:0:0:0:0:0:0:1",
+            "nick_name": "김대희",
+            "read_count": 0,
+            "email_address": "dhkim@ckstack.com",
+            "file_count": 0,
+            "comment_count": 0,
+            "content": "",
+            "user_name": "김대희"
+        },
+        {
+            "is_notice": false,
+            "link": "",
+            "title": "게시물2",
+            "tags": [
+                {
+                    "tag_srl": 140,
+                    "tag_name": "태그1"
+                },
+                {
+                    "tag_srl": 125,
+                    "tag_name": "사용자 태그"
+                }
+            ],
+            "user_id": "dhkim@ckstack.com",
+            "link_document": {
+
+            },
+            "is_secret": false,
+            "like_count": 0,
+            "template": {
+                "kid_location": "어린이집에 있어요."
+            },
+            "u_date": 1441007208,
+            "allow_comment": true,
+            "blame_count": 0,
+            "category_srl": 85,
+            "document_srl": 413,
+            "attach": [
+                {
+                    "file_url": "http://localhost:8080/resource/show/image/document/55",
+                    "file_srl": 55,
+                    "orig_name": "003.jpg",
+                    "file_comment": "",
+                    "height": 329,
+                    "width": 500,
+                    "mime_type": "image/jpeg",
+                    "file_size": 61118
+                },
+                {
+                    "file_url": "http://localhost:8080/resource/show/image/document/54",
+                    "file_srl": 54,
+                    "orig_name": "002.jpg",
+                    "file_comment": "",
+                    "height": 331,
+                    "width": 500,
+                    "mime_type": "image/jpeg",
+                    "file_size": 72157
+                },
+                {
+                    "file_url": "http://localhost:8080/resource/show/image/document/53",
+                    "file_srl": 53,
+                    "orig_name": "001.jpg",
+                    "file_comment": "",
+                    "height": 331,
+                    "width": 500,
+                    "mime_type": "image/jpeg",
+                    "file_size": 85647
+                }
+            ],
+            "c_date": 1441007208,
+            "ipaddress": "0:0:0:0:0:0:0:1",
+            "nick_name": "김대희",
+            "read_count": 0,
+            "email_address": "dhkim@ckstack.com",
+            "file_count": 3,
+            "comment_count": 0,
+            "content": "",
+            "user_name": "김대희"
+        },
+        {
+            "is_notice": false,
+            "link": "",
+            "title": "게시물1",
+            "tags": [
+
+            ],
+            "user_id": "dhkim@ckstack.com",
+            "link_document": {
+
+            },
+            "is_secret": false,
+            "like_count": 0,
+            "template": {
+                "mobile_phone": "galaxy",
+                "c_date": 0,
+                "content": "\"컨텐츠\" 내용. 여기에 넣으세요<br/>\n안녕하세요. '반갑습니다'"
+            },
+            "u_date": 1441003942,
+            "allow_comment": true,
+            "blame_count": 0,
+            "category_srl": 85,
+            "document_srl": 412,
+            "attach": [
+
+            ],
+            "c_date": 1441003942,
+            "ipaddress": "0:0:0:0:0:0:0:1",
+            "nick_name": "김대희",
+            "read_count": 0,
+            "email_address": "dhkim@ckstack.com",
+            "file_count": 0,
+            "comment_count": 0,
+            "content": "",
+            "user_name": "김대희"
+        },
+        {
+            "is_notice": false,
+            "link": "",
+            "title": "ddd",
+            "tags": [
+
+            ],
+            "user_id": "dhkim@ckstack.com",
+            "link_document": {
+
+            },
+            "is_secret": false,
+            "like_count": 0,
+            "template": {
+
+            },
+            "u_date": 1440581732,
+            "allow_comment": true,
+            "blame_count": 0,
+            "category_srl": 85,
+            "document_srl": 349,
+            "attach": [
+
+            ],
+            "c_date": 1440581732,
+            "ipaddress": "0:0:0:0:0:0:0:1",
+            "nick_name": "김대희",
+            "read_count": 0,
+            "email_address": "dhkim@ckstack.com",
+            "file_count": 0,
+            "comment_count": 0,
+            "content": "",
+            "user_name": "김대희"
+        },
+        {
+            "is_notice": false,
+            "link": "",
+            "title": "버그1",
+            "tags": [
+
+            ],
+            "user_id": "dhkim@ckstack.com",
+            "link_document": {
+
+            },
+            "is_secret": false,
+            "like_count": 0,
+            "template": {
+
+            },
+            "u_date": 1439780085,
+            "allow_comment": true,
+            "blame_count": 0,
+            "category_srl": 85,
+            "document_srl": 25,
+            "attach": [
+
+            ],
+            "c_date": 1439780085,
+            "ipaddress": "0:0:0:0:0:0:0:1",
+            "nick_name": "김대희",
+            "read_count": 0,
+            "email_address": "dhkim@ckstack.com",
+            "file_count": 0,
+            "comment_count": 0,
+            "content": "",
+            "user_name": "김대희"
+        },
+        {
+            "is_notice": false,
+            "link": "http://google.com?a=한글&b=찾기13",
+            "title": "'안녕', \"안녕\", <div>a</div><br/>하세요221",
+            "tags": [
+                {
+                    "tag_srl": 125,
+                    "tag_name": "사용자 태그"
+                }
+            ],
+            "user_id": "dhkim@ckstack.com",
+            "link_document": {
+
+            },
+            "is_secret": false,
+            "like_count": 0,
+            "template": {
+                "array1": "item1",
+                "date1": 1438527600000,
+                "text1": "",
+                "time1": "12:05",
+                "datetime1": 1439260380000,
+                "textarea1": ""
+            },
+            "u_date": 1439778877,
+            "allow_comment": true,
+            "blame_count": 0,
+            "category_srl": 85,
+            "document_srl": 24,
+            "attach": [
+                {
+                    "file_url": "http://localhost:8080/resource/show/image/document/45",
+                    "file_srl": 45,
+                    "orig_name": "001.jpg",
+                    "file_comment": "",
+                    "height": 331,
+                    "width": 500,
+                    "mime_type": "image/jpeg",
+                    "file_size": 85647
+                }
+            ],
+            "c_date": 1439778877,
+            "ipaddress": "0:0:0:0:0:0:0:1",
+            "nick_name": "김대희",
+            "read_count": 0,
+            "email_address": "dhkim@ckstack.com",
+            "file_count": 1,
+            "comment_count": 0,
+            "content": "",
+            "user_name": "김대희"
+        },
+        {
+            "is_notice": false,
+            "link": "",
+            "title": "\"안녕하세요\", '안녕하세요', &nbsp; <div>안녕하세요</div>",
+            "tags": [
+
+            ],
+            "user_id": "dhkim@ckstack.com",
+            "link_document": {
+
+            },
+            "is_secret": false,
+            "like_count": 0,
+            "template": {
+
+            },
+            "u_date": 1439439767,
+            "allow_comment": true,
+            "blame_count": 0,
+            "category_srl": 85,
+            "document_srl": 16,
+            "attach": [
+
+            ],
+            "c_date": 1439439767,
+            "ipaddress": "0:0:0:0:0:0:0:1",
+            "nick_name": "김대희",
+            "read_count": 0,
+            "email_address": "dhkim@ckstack.com",
+            "file_count": 0,
+            "comment_count": 0,
+            "content": "",
+            "user_name": "김대희"
+        }
+    ],
+    "ck_error": "S000001",
+    "ck_tid": "1",
+    "offset": -1,
+    "ck_message": "성공"
+}
+```
+
+- 링크 게시물 리스트 일때 ( link_document에 값이 존재함 )
+
+```json
+{
+    "total_rows": 3,
+    "limit": -1,
+    "category_srl": 5,
+    "category_name": "링크 카테고리",
+    "documents": [
+        {
+            "is_notice": false,
+            "link": "",
+            "title": "카테고리 13 게시물",
+            "tags": [
+
+            ],
+            "user_id": "dhkim@ckstack.com",
+            "link_document": {
+                "category_srl": 220,
+                "link_srl": 21
+            },
+            "is_secret": false,
+            "like_count": 0,
+            "template": {
+
+            },
+            "u_date": 1440749469,
+            "allow_comment": true,
+            "blame_count": 0,
+            "category_srl": 238,
+            "document_srl": 411,
+            "attach": [
+                {
+                    "file_url": "http://localhost:8080/resource/show/image/document/57",
+                    "file_srl": 57,
+                    "orig_name": "001.jpg",
+                    "file_comment": "",
+                    "height": 331,
+                    "width": 500,
+                    "mime_type": "image/jpeg",
+                    "file_size": 85647
+                }
+            ],
+            "ipaddress": "0:0:0:0:0:0:0:1",
+            "c_date": 1440749469,
+            "read_count": 0,
+            "nick_name": "김대희",
+            "email_address": "dhkim@ckstack.com",
+            "file_count": 1,
+            "comment_count": 0,
+            "content": "",
+            "user_name": "김대희"
+        },
+        {
+            "is_notice": false,
+            "link": "",
+            "title": "ddd",
+            "tags": [
+
+            ],
+            "user_id": "dhkim@ckstack.com",
+            "link_document": {
+                "category_srl": 220,
+                "link_srl": 18
+            },
+            "is_secret": false,
+            "like_count": 0,
+            "template": {
+
+            },
+            "u_date": 1440581732,
+            "allow_comment": true,
+            "blame_count": 0,
+            "category_srl": 85,
+            "document_srl": 349,
+            "attach": [
+
+            ],
+            "ipaddress": "0:0:0:0:0:0:0:1",
+            "c_date": 1440581732,
+            "read_count": 0,
+            "nick_name": "김대희",
+            "email_address": "dhkim@ckstack.com",
+            "file_count": 0,
+            "comment_count": 0,
+            "content": "",
+            "user_name": "김대희"
+        },
+        {
+            "is_notice": false,
+            "link": "http://google.com?a=한글&b=찾기13",
+            "title": "'안녕', \"안녕\", <div>a</div><br/>하세요221",
+            "tags": [
+                {
+                    "tag_srl": 125,
+                    "tag_name": "사용자 태그"
+                }
+            ],
+            "user_id": "dhkim@ckstack.com",
+            "link_document": {
+                "category_srl": 220,
+                "link_srl": 19
+            },
+            "is_secret": false,
+            "like_count": 0,
+            "template": {
+                "array1": "item1",
+                "date1": 1438527600000,
+                "text1": "",
+                "time1": "12:05",
+                "datetime1": 1439260380000,
+                "textarea1": ""
+            },
+            "u_date": 1439778877,
+            "allow_comment": true,
+            "blame_count": 0,
+            "category_srl": 85,
+            "document_srl": 24,
+            "attach": [
+                {
+                    "file_url": "http://localhost:8080/resource/show/image/document/45",
+                    "file_srl": 45,
+                    "orig_name": "001.jpg",
+                    "file_comment": "",
+                    "height": 331,
+                    "width": 500,
+                    "mime_type": "image/jpeg",
+                    "file_size": 85647
+                }
+            ],
+            "ipaddress": "0:0:0:0:0:0:0:1",
+            "c_date": 1439778877,
+            "read_count": 0,
+            "nick_name": "김대희",
+            "email_address": "dhkim@ckstack.com",
+            "file_count": 1,
+            "comment_count": 0,
+            "content": "",
+            "user_name": "김대희"
+        }
+    ],
+    "ck_error": "S000001",
+    "ck_tid": "1",
+    "offset": -1,
+    "ck_message": "성공"
+}
+```
+
+### 실패
+```json
+{
+    "ck_request_uri": "/1/api/document/list/t/1",
+    "ck_error": "E000615",
+    "ck_method": "POST",
+    "ck_tid": "1",
+    "ck_message": "게시물 리스팅을 실패 했습니다.",
+    "ck_reason": {
+        "invalid": "invalid request(H1)"
+    }
+}
+```
+
+## 에러
+### 에러 코드
+[에러 코드](에러 코드) 문서 참조
+
+### 에러 구분키
+- E1 : category_srl을 request 포함 시키지 않았어가 잘못된 값임
+- H1 : 존재하지 않는 카테고리 임
+- H2 : 비활성 된 카테고리 임
+- H3 : 비활성 된 게시판 임

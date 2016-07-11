@@ -1,0 +1,131 @@
+## 이력
+1. 2015.08.21 : 신규 추가
+
+## 설명
+CKPush에 등록(가입)된 사용자의 접속 토큰을 발급 한다.
+
+## 요청
+### 메소드
+POST 방식으로 요청 해야 한다.
+
+### 헤더
+다음 헤더를 포함해야 한다. X-Api-Key, X-Api-Secret는 CKPush Backoffice를 통해서 생성된 값을 사용 한다.
+
+- Accept: application/json
+- Content-Type: application/json;charset=UTF-8
+- X-Api-Key : [단말을 등록하려는 앱의 api key]
+- X-Api-Secret : [단말을 등록하려는 앱의 api secret]
+- X-Social-Type : [소셜 연동으로 가입 할때 소셜 종류]
+
+NOTE:
+
+X-Social-Type은 다음 값을 사용 한다.
+
+- -1 : 소셜 인증을 통한 접속 토큰 발급이 아님
+- 1 : 카카오톡 인증을 통한 접속 토큰 발급
+- 2 : 페이스북 인증을 통한 접속 토큰 발급
+- 3 : 트위터 인증을 통한 접속 토큰 발급
+- 4 : 구글 인증을 통한 접속 토큰 발급
+- 5 : 네이버 인증을 통한 접속 토큰 발급
+- 6 : 다음 인증을 통한 접속 토큰 발급
+
+### 요청 URL
+접속 도메인(dev.ckpush.com)과 접속 도메인 다음 등장하는 Path(/1/)는 설치되는 서비스에 따라 변경 된다.
+
+```html
+http://dev.ckpush.com/1/api/open/signin/t/<tid>
+```
+
+- tid : {string} transaction id
+
+### 요청 JSON
+요청시 전달되는 값은 JSON 형태로 전달해야 하며 다음 값을 사용 할 수 있다.
+
+- user_id : (mandatory) {string} 토큰 발급할 사용자 아이디. 소셜 연동 일때는 소셜에서 받은 사용자 고유 번호
+- user_password : (mandatory) {string} 사용자 패스워드. md5 인코딩을 적용한 값
+
+### 요청 예제
+```javascript
+var data = {
+    user_id: "dhkim1@ckstack.com",
+    user_password: "e19d5cd5af0378da05f63f891c7467af"
+};
+$.ajax({
+    type: 'POST',
+    url: 'http://dev.ckpush.com/1/api/open/signin/t/1',
+    data: JSON.stringify(data),
+    beforeSend: function(request) {
+        request.setRequestHeader('Accept', 'application/json');
+        request.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+        request.setRequestHeader('X-Api-Key', '5e7bb99424124b3b94341af47ae1f0e6');
+        request.setRequestHeader('X-Api-Secret', '97f3a0ac63354d0abf361846f98232ca');
+        request.setRequestHeader('X-Social-Type', '-1');
+    },
+    success: function(data, textStatus, jqXHR) {
+        console.log('success');
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+        console.log('failed');
+    }
+});
+```
+
+## 응답
+### 응답 결과
+JSON 값으로 응답 한다. ck_error 값이 S000001 이 아니면 실패 이다.
+
+- ck_tid : {string} 요청시 전달한 transaction id
+- ck_error : {string} 응답 코드
+- ck_message : {string} 응답 메시지
+- member_srl : {numeric} 등록된 사용자 시리얼 넘버
+- access_token : {string} 접속 토큰
+- access_token_expire : {numeric} 접속 토큰의 유지 시간. 초 단위
+
+발급된 access token 과 access token 의 유지 시간은 응답의 header 값으로도 전달 된다. 해당 사항은 [API 공통 처리]( API 공통 처리) 참고 한다.
+
+### 성공
+```json
+{
+    "ck_error": "S000001",
+    "ck_tid": "1",
+    "member_srl": 449,
+    "ck_message": "성공",
+    "access_token_expire": 3600,
+    "access_token": "1060018a851e449aa8fc419b8ec925f2"
+}
+```
+
+### 실패
+```json
+{
+    "ck_request_uri": "/1/api/open/signin/t/1",
+    "ck_error": "E000017",
+    "ck_method": "POST",
+    "ck_tid": "1",
+    "ck_message": "인증키 발급을 실패 했습니다.",
+    "ck_reason": {
+        "invalid": "invalid request(H10)"
+    }
+}
+```
+
+## 에러
+### 에러 코드
+[에러 코드](에러 코드) 문서 참조
+
+### 에러 구분키
+- E1 : user_id를 request시에 포함시키지 않음
+- E2 : user_id의 길이는 최소 4에서 128까지 인데, 길이가 미만이거나 초과됨
+- E4 : user_password를 request시에 포함시키지 않음
+- E5 : user_password의 길이는 최소 4에서 128까지 인데, 길이가 미만이거나 초과됨. md5 한 것의 길이 체크 이기 때문에 원본의 길이가 아님.  서버에서는 패스워드를 알 수 없기 때문에 원본의 길이 체크를 할 수 없음
+- H1 : request Header에 X-Api-Key가 존재하지 않음
+- H2 : X-Api-Key 값이 trim시에 empty string임
+- H3 : request Header에 X-Api-Secret가 존재하지 않음
+- H4 : X-Api-Secret 값이 trim시에 empty string임
+- H5 : api key 에 맞는 앱이 존재하지 않음
+- H6 : api key 에 맞지 않는 api secret 임
+- H7 : request Header에 X-Social-Type이 존재하지 않음
+- H8 : X-Social-Type 값이 trim시에 empty string임
+- H9 : X-Social-Type값이 지원하지 않는 소셜 타입임
+- H10 : 존재하지 않는 사용자로 접속 토큰 발급 요청함
+- H11 : 비 활성된 앱에 가입 시도

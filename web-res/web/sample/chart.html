@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>막대 그래프 샘플</title>
+    <meta name="description" content="CKPush 관리툴의 Layout 페이지">
+    <meta name="author" content="dhkim@ckstack.com">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <!-- CSS Links -->
+    <!-- Basic Styles -->
+    <link rel="stylesheet" type="text/css" media="screen" href="/adm/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="/adm/css/font-awesome.min.css">
+
+    <!-- SmartAdmin Styles : Caution! DO NOT change the order -->
+    <link rel="stylesheet" type="text/css" media="screen" href="/adm/css/smartadmin-production-plugins.min.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="/adm/css/smartadmin-production.min.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="/adm/css/smartadmin-skins.min.css">
+
+    <!-- my style -->
+    <link rel="stylesheet" type="text/css" media="screen" href="/adm/css/ckpush.css">
+
+    <!-- FAVICONS -->
+    <link rel="shortcut icon" href="/adm/img/favicon/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/adm/img/favicon/favicon.ico" type="image/x-icon">
+
+    <!-- GOOGLE FONT -->
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700">
+
+    <!-- #APP SCREEN / ICONS -->
+    <!-- Specifying a Webpage Icon for Web Clip
+         Ref: https://developer.apple.com/library/ios/documentation/AppleApplications/Reference/SafariWebContent/ConfiguringWebApplications/ConfiguringWebApplications.html -->
+    <link rel="apple-touch-icon" href="/adm/img/splash/sptouch-icon-iphone.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/adm/img/splash/touch-icon-ipad.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/adm/img/splash/touch-icon-iphone-retina.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/adm/img/splash/touch-icon-ipad-retina.png">
+
+    <!-- iOS web-app metas : hides Safari UI Components and Changes Status Bar Appearance -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+    <!-- Startup image for web apps -->
+    <!-- ipad landscape -->
+    <link rel="apple-touch-startup-image" href="/adm/img/splash/splash-1024x784.png" media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:landscape)">
+    <!-- ipad portrait -->
+    <link rel="apple-touch-startup-image" href="/adm/img/splash/splash-784x1024.png" media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:portrait)">
+    <!-- iphone -->
+    <link rel="apple-touch-startup-image" href="/adm/img/splash/splash-320x460.png" media="screen and (max-device-width: 320px)">
+
+    <script src="/adm/js/libs/jquery-2.1.1.min.js"></script>
+    <script src="/adm/js/libs/jquery-ui-1.10.3.min.js"></script>
+
+    <!-- underscore.js -->
+    <script src="/adm/js/plugin/underscore-js/underscore-min.js"></script>
+
+    <!-- ckras에 필요한 것들만 먼저 로드 -->
+    <script src="/adm/js/ckpush/my.preload.js"></script>
+
+    <!-- ras js file. ras js 파일은  -->
+    <!--
+    <script src="/adm/js/ckpush/ras/socket.io.js"></script>
+    <script src="/adm/js/ckpush/ras/ras-config.js"></script>
+    <script src="/adm/js/ckpush/ras/ras-model.js"></script>
+    <script src="/adm/js/ckpush/ras/ras-user-ui.js"></script>
+    <script src="/adm/js/ckpush/ras/ras-user-console.js"></script>
+    <script type="text/javascript">
+        // 인증키를 주면 인증키로 돌아가고, 인증 object 를 주면 인증 object 로 돌아간다.
+        // 존재하지 않는 것에 대해서는 ras-config.js에 정의된 값을 사용 한다.
+        //_ckras.model.init('1234.');
+        _ckras.model.init();
+    </script>
+    -->
+
+    <!-- 막대 그래프 -->
+    <script src="/sample/chart.js"></script>
+</head>
+<body class="smart-style-3">
+<header id="header">
+    <div id="logo-group">
+        <!-- PLACE YOUR LOGO HERE -->
+        <span id="logo"> <img src="/adm/img/logo-pale.png" alt="CKPush BackOffice Tool"> </span>
+        <!-- END LOGO PLACEHOLDER -->
+    </div>
+
+    <div class="pull-right">
+        <!-- fullscreen button -->
+        <div id="fullscreen" class="btn-header transparent pull-right">
+            <span> <a href="javascript:void(0);" data-action="launchFullscreen" title="전체 화면"><i class="fa fa-arrows-alt"></i></a> </span>
+        </div>
+        <!-- end fullscreen button -->
+
+        <!-- multiple lang dropdown : find all flags in the flags page -->
+        <ul class="header-dropdown-list hidden-xs">
+            <li>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown"> <img src="/adm/img/blank.gif" class="flag flag-kr" alt="한국어"> <span> 한국</span> <i class="fa fa-angle-down"></i> </a>
+                <ul class="dropdown-menu pull-right">
+                    <li class="active">
+                        <a href="javascript:void(0);"><img src="/adm/img/blank.gif" class="flag flag-kr" alt="한국어"> 한국어</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <!-- end multiple lang -->
+
+        <!-- ras connection icon 을 추가. 연결 완료 되면 보여 주지 않는다 -->
+        <!--
+        <div id="ras-connection-status-btn" class="btn-header transparent pull-right" style="padding-right:10px;">
+            <div>
+                <div title="RAS 상태" style="margin-top: 14px; color: white; font-size: 17px;">
+                    <i id="ras-connection-status" class="fa fa-spinner fa-spin"></i>
+                </div>
+            </div>
+        </div>
+        -->
+    </div>
+    <!-- end pulled right: nav area -->
+</header>
+
+<!-- MAIN PANEL -->
+<div id="main" role="main" style="margin-left: 0;">
+    <div id="ribbon">
+			<span class="ribbon-button-alignment">
+				<span id="refresh" class="btn btn-ribbon" data-action="resetWidgets" data-title="refresh" rel="tooltip" data-placement="bottom" data-original-title="<i class='text-warning fa fa-warning'></i> 주의! 모든 위젯의 설정이 초기화 됩니다." data-html="true" data-reset-msg="위젯 설정과 로컬 저장소의 모든 데이터를 초기화 합니까?"><i class="fa fa-refresh"></i></span>
+			</span>
+
+        <!-- breadcrumb -->
+        <ol class="breadcrumb"></ol>
+        <!-- end breadcrumb -->
+    </div>
+    <!-- END RIBBON -->
+
+    <!-- #MAIN CONTENT -->
+    <div id="content">
+        <section id="widget-grid" class="">
+            <div class="row">
+                <article class="col-sm-12 col-md-12 col-lg-12">
+                    <div class="jarviswidget" id="wid-nmap-0" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-deletebutton="false">
+                        <header>
+                            <span class="widget-icon"> <i class="fa fa-map-marker"></i> </span>
+                            <h2>막대 그래프 샘플</h2>
+                        </header>
+
+                        <div>
+                            <div class="jarviswidget-editbox"></div>
+                            <div class="widget-body no-padding">
+                                <div id="bar-chart" class="chart"></div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+    </div>
+    <!-- END #MAIN CONTENT -->
+</div>
+<!-- END #MAIN PANEL -->
+
+<!-- #PAGE FOOTER -->
+<div class="page-footer" style="padding-left: 10px;">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6">
+            <span class="txt-color-white">막대 그래프 테스트</span>
+        </div>
+    </div>
+    <!-- end row -->
+</div>
+<!-- END FOOTER -->
+
+<script src="/adm/js/app.config.js"></script>
+<script src="/adm/js/plugin/jquery-touch/jquery.ui.touch-punch.min.js"></script>
+<script src="/adm/js/bootstrap/bootstrap.min.js"></script>
+<!-- <script src="/adm/js/notification/SmartNotification.min.js"></script> -->
+<script src="/adm/js/smartwidgets/jarvis.widget.min.js"></script>
+<!-- <script src="/adm/js/plugin/easy-pie-chart/jquery.easy-pie-chart.min.js"></script> -->
+<!-- <script src="/adm/js/plugin/sparkline/jquery.sparkline.min.js"></script> -->
+<!-- <script src="/adm/js/plugin/jquery-validate/jquery.validate.min.js"></script> -->
+<!-- <script src="/adm/js/plugin/masked-input/jquery.maskedinput.min.js"></script> -->
+<!-- <script src="/adm/js/plugin/select2/select2.min.js"></script> -->
+<script src="/adm/js/plugin/bootstrap-slider/bootstrap-slider.min.js"></script>
+<script src="/adm/js/plugin/msie-fix/jquery.mb.browser.min.js"></script>
+<script src="/adm/js/plugin/fastclick/fastclick.min.js"></script>
+
+<!--[if IE 8]>
+<h1>지금 사용하는 브라우저는 지원하지 않는 브라우저 입니다. www.microsoft.com/download 에 방문 해서 브라우져 업데이트를 하거나, www.google.com/chrome 에서 신규 브라우저를 설치 하세요.</h1>
+<![endif]-->
+
+<script src="/adm/js/app.min.js"></script>
+<script src="/adm/js/ckpush/my.js"></script>
+<script src="/adm/js/ckpush/overwrite.js"></script>
+</body>
+</html>

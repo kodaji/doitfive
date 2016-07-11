@@ -1,0 +1,299 @@
+## 이력
+1. 2015.09.11 : 신규 추가
+2. 2015.09.15
+   - 응답 항목에 카테고리 시리얼 넘버 추가
+
+## 설명
+공개 카테고리의 게시물 리스트를 구한다. 공개 카테고리를 포함하고 있는 게시판도 공개 되어야 정상으로 리스트 된다. 만일 게시판, 카테고리 중 하나라도 공개가 아니라면 리스트 구하는 것을 실패 한다.
+
+[게시물 리스트 API](게시판 리스트(list_board))는 인증 이후 사용하는 것이고, 본 API는 인증 필요 없이 사용 가능 한 것에 주의 해야 한다. 인증을 하지 않기 때문에 공개 카테고리, 공개 게시판이 아닌 경우는 게시물 리스트를 구할 수 없다.
+
+공개 카테고리 이기 때문에 게시물 비밀글 여부 상관 없이 모든 사람들에게 공통으로 게시물은 리스팅 되며, 비밀글 일때는 조회시 게시물의 비밀글을 입력 하도록 클라이언트에서 제한 해야 한다.
+
+## 요청
+### 메소드
+POST 방식으로 요청 해야 한다.
+
+### 헤더
+다음 헤더를 포함해야 한다.
+
+- Accept: application/json
+- Content-Type: application/json;charset=UTF-8
+
+### 요청 URL
+접속 도메인(dev.ckpush.com)과 접속 도메인 다음 등장하는 Path(/1/)는 설치되는 서비스에 따라 변경 된다.
+
+```html
+http://dev.ckpush.com/1/api/open/document/list/t/<tid>
+```
+
+- tid : {string} transaction id
+
+### 요청 JSON
+요청시 전달되는 값은 JSON 형태로 전달해야 하며 다음 값을 사용 할 수 있다.
+
+- category_srl : (mandatory) {numeric} 게시물 리스트를 구할 카테고리 시리얼 넘버
+- title : (optional) {string} 게시물 제목 검색 조건. 게시물 제목 첫글자 부터 like 검색 한다
+- tags : (optional) {numeric list} 게시물 태그 검색 조건. 검색할 태그 시리얼 넘버 리스트
+- sort : (optional) {map} 정렬 조건
+- offset : (optional) {numeric} 리스트의 offset. mysql의 offset 개념과 동일
+- limit : (optional) {numeric} 리스트의 limit. mysql의 limit 개념과 동일
+- opt_content : (optional) {boolean} 게시물 리스트에 게시물 본문 포함 여부. true이면 게시물 본문 포함, false이면 포함하지 않음
+
+NOTE:
+
+sort 는 게시물 리스트의 검색 조건이며 다음 형태로 사용 가능 하다. 다음 값으로 정렬 가능 하다. 만일 sort가 없다면 게시물 생성 순서로 정렬 된다.(공지 사항 게시물은 정렬값 상관 없이 항상 리스트 최상위에 등장 한다.)
+
+- title : 게시물 제목으로 리스트 정렬
+- list_order : 관리자가 지정한 임의의 순서로 리스트 정렬
+- document_srl : 게시물 생성 순서로 리스트 정렬. 링크 게시물 리스트 일때는 내부에서  document_link_srl 로 자동 변환 된다. 즉 링크 게시물의  document_srl 정렬은 실제로 document_link_srl 정렬이 된다.
+
+아래 예제는 게시물 제목으로 DESC 정렬 하고 난 다음 게시물 생성 순서로 ASC 정렬 하는 것이다.
+
+```json
+{
+    "title" : "desc",
+    "document_srl" : "asc"
+}
+```
+
+NOTE:
+
+offset, limit 에 아래 값이 들어가면 특별하게 동작하게 된다.
+
+- offset 의 값이 없으면 0으로 취급 한다.
+- limit 의 값이 0 이거나 없으면 전체로 취급하여 offset 값을 무시하고 모든 게시물을 select 하여 리스트로 뿌린다. 이런 경우에 response 의 limit, offset 값은 -1 이다.
+
+### 요청 예제
+```javascript
+var data = {
+    category_srl: 1025
+};
+$.ajax({
+    type: 'POST',
+    url: 'http://dev.ckpush.com/1/api/open/document/list/t/1',
+    data: JSON.stringify(data),
+    beforeSend: function(request) {
+        request.setRequestHeader('Accept', 'application/json');
+        request.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+        request.setRequestHeader('X-Access-Token', '1e1596d352fa475497f87c8bf942e4bf');
+    },
+    success: function(data, textStatus, jqXHR) {
+        console.log('success');
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+        console.log('failed');
+    }
+});
+```
+
+NOTE:
+
+태그로 일반 게시물 검색
+
+```json
+{
+    "category_srl" : 1025,
+    "tags" : [140]
+}
+```
+
+## 응답
+### 응답 결과
+JSON 값으로 응답 한다. 만일 요청 Accept 가 application/json 이 아니면 의미없는 응답 결과가 전달 된다. ck_error 값이 S000001 이 아니면 실패 이다.
+
+- ck_tid : {string} 요청시 전달한 transaction id
+- ck_error : {string} 응답 코드
+- ck_message : {string} 응답 메시지
+- category_srl : {numeric} 카테고리 시리얼 넘버
+- category_name : {string} 카테고리 이름
+- total_rows : {numeric} 게시물의 전체 개수. 만일 검색을 한다면 검색된 게시물의 전체 개수가 된다
+- offset : {numeric} 결과 리스트의 offset. 만일 -1이면 request시에 의미 없는 offset을 사용
+- limit : {numeric} 결과 리스트의 limit. 만일 -1이면 request시에 의미 없는 offset을 사용
+- documents : {list} 게시물 리스트
+   + link_document : {map} 링크 게시물 리스트를 확인 볼때 링크 정보
+      * link_srl : {numeric} 링크 게시물 시리얼 넘버
+      * category_srl : {numeric} 링크 게시물의 카테고리 시리얼 넘버
+   + document_srl : {numeric} 게시물 시리얼 넘버
+   + category_srl : {numeric} 카테고리 시리얼 넘버
+   + title : {string} 게시물 제목
+   + content : {string} 게시물 본문. request 시에 opt_content가 false 이면 empty string으로 고정 된다
+   + link : {string} 게시물에 지정된 외부 링크
+   + read_count : {numeric} 게시물 조회 카운트
+   + comment_count : {numeric} 게시물에 달린 댓글 카운트
+   + like_count : {numeric} 게시물 좋아요 카운트
+   + blame_count : {numeric} 게시물 싫어요 카운트
+   + file_count : {numeric} 첨부 파일 카운트
+   + allow_comment : {boolean} 댓글 달기 허용 여부. true이면 댓글 달기 허용, false이면 비허용
+   + is_notice : {boolean} 공지 사항 여부. true이면 공지 게시물, false이면 일반 게시물
+   + is_secret: {boolean} 비밀글 여부. true이면 비밀글, false이면 비밀글 아님
+   + user_id : {string} 게시물 작성자의 사용자 아이디
+   + user_name : {string} 게시물 작성자의 이름
+   + nick_name : {string} 게시물 작성자의 별명
+   + email_address : {string} 게시물 작성자의 메일 주소
+   + ipaddress : {string} 게시물을 등록한 아이피 주소
+   + u_date : {numeric} 게시물 수정일. unix timestamp 형태
+   + c_date : {numeric} 게시물 작성일. unix timestamp 형태
+   + template : {map} 게시물에서 사용되는 템플릿 값. 포함되는 map 요소는 템플릿에 따라서 달라진다
+   + tags : {list} 게시물 태그 리스트. 관리자용 태그는 출력 되지 않는다
+      * tag_srl : {numeric} 태그 시리얼 넘버
+      * tag_name : {string} 태그 이름
+	+ attach : {list} 첨부 파일 리스트
+      * file_url : {string} 첨부 파일 URL
+      * file_srl : {numeric} 첨부 파일 시리얼 넘버
+      * orig_name : {string} 첨부 파일 원본 이름
+      * file_comment : {string} 첨부 파일 코멘트
+      * height : {numeric} 첨부 파일이 이미지 일때 이미지 높이
+      * width : {numeric} 첨부 파일이 이미지 일때 이미지 너비
+      * mime_type : {string} 첨부 파일의 마임 타입
+      * file_size : {numeric} 첨부 파일의 파일 사이즈
+
+### 성공
+- 일반 게시물 리스트 일때 ( link_document에 값이 존재하지 않음 )
+
+```json
+{
+    "total_rows": 2,
+    "limit": -1,
+    "category_srl": 1026,
+    "category_name": "테스트 카테고리",
+    "documents": [
+        {
+            "is_notice": false,
+            "link": "",
+            "title": "공개 게시물2",
+            "tags": [
+
+            ],
+            "user_id": "dhkim@ckstack.com",
+            "link_document": {
+
+            },
+            "is_secret": false,
+            "like_count": 0,
+            "template": {
+
+            },
+            "u_date": 1442200179,
+            "allow_comment": true,
+            "blame_count": 0,
+            "category_srl": 1026,
+            "document_srl": 3,
+            "attach": [
+                {
+                    "file_url": "http://localhost:8080/1/resource/show/image/document/4",
+                    "file_srl": 4,
+                    "orig_name": "002.jpg",
+                    "file_comment": "",
+                    "height": 331,
+                    "width": 500,
+                    "mime_type": "image/jpeg",
+                    "file_size": 72157
+                },
+                {
+                    "file_url": "http://localhost:8080/1/resource/show/image/document/3",
+                    "file_srl": 3,
+                    "orig_name": "003.jpg",
+                    "file_comment": "",
+                    "height": 329,
+                    "width": 500,
+                    "mime_type": "image/jpeg",
+                    "file_size": 61118
+                }
+            ],
+            "c_date": 1442200179,
+            "ipaddress": "0:0:0:0:0:0:0:1",
+            "nick_name": "김대희",
+            "read_count": 0,
+            "email_address": "dhkim@ckstack.com",
+            "file_count": 2,
+            "comment_count": 0,
+            "content": "",
+            "user_name": "김대희"
+        },
+        {
+            "is_notice": false,
+            "link": "",
+            "title": "공 게시물2",
+            "tags": [
+
+            ],
+            "user_id": "dhkim@ckstack.com",
+            "link_document": {
+
+            },
+            "is_secret": true,
+            "like_count": 0,
+            "template": {
+
+            },
+            "u_date": 1441966530,
+            "allow_comment": true,
+            "blame_count": 0,
+            "category_srl": 1026,
+            "document_srl": 2,
+            "attach": [
+                {
+                    "file_url": "http://localhost:8080/1/resource/show/image/document/2",
+                    "file_srl": 2,
+                    "orig_name": "002.jpg",
+                    "file_comment": "",
+                    "height": 331,
+                    "width": 500,
+                    "mime_type": "image/jpeg",
+                    "file_size": 72157
+                },
+                {
+                    "file_url": "http://localhost:8080/1/resource/show/image/document/1",
+                    "file_srl": 1,
+                    "orig_name": "001.jpg",
+                    "file_comment": "",
+                    "height": 331,
+                    "width": 500,
+                    "mime_type": "image/jpeg",
+                    "file_size": 85647
+                }
+            ],
+            "c_date": 1441966530,
+            "ipaddress": "0:0:0:0:0:0:0:1",
+            "nick_name": "김대희",
+            "read_count": 0,
+            "email_address": "dhkim@ckstack.com",
+            "file_count": 2,
+            "comment_count": 0,
+            "content": "",
+            "user_name": "김대희"
+        }
+    ],
+    "ck_error": "S000001",
+    "ck_tid": "1",
+    "offset": -1,
+    "ck_message": "성공"
+}
+```
+
+### 실패
+```json
+{
+    "ck_request_uri": "/1/api/open/document/list/t/1",
+    "ck_error": "E000615",
+    "ck_method": "POST",
+    "ck_tid": "1",
+    "ck_message": "게시물 리스팅을 실패 했습니다.",
+    "ck_reason": {
+        "invalid": "invalid request(H4)"
+    }
+}
+```
+
+## 에러
+### 에러 코드
+[에러 코드](에러 코드) 문서 참조
+
+### 에러 구분키
+- E1 : category_srl을 request 포함 시키지 않았어가 잘못된 값임
+- H1 : 존재하지 않는 카테고리 임
+- H2 : 비활성 된 카테고리 임
+- H3 : 비공개된 카테고리(access_token을 발급 받아야 접근 가능한 카테고리)
+- H4 : 비활성 된 게시판에 포함된 카테고리 임
+- H5 : 비공개된 게시판에 포함된 카테고리(access_token을 발급 받아야 접근 가능한 게시판)

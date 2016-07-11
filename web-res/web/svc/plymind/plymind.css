@@ -1,0 +1,195 @@
+@font-face {
+    font-family: 'SDMiSaeng';
+    font-style: normal;
+    font-weight: normal;
+    src : local('SDMiSaeng'), url('../fonts/SDMiSaeng.ttf') format("opentype"), url('../fonts/sdmisaeng.eot');
+    /*src : local('SDMiSaeng'), url('../fonts/SDMiSaeng.otf') format("opentype");*/
+}
+@font-face {
+    font-family: 'BaeDalJua';
+    font-style: normal;
+    font-weight: normal;
+    src : local('BaeDalJua'), url('../fonts/BaeDalJua.ttf') format("opentype"), url('../fonts/BaeDalJua.eot');
+    /*src : local('SDMiSaeng'), url('../fonts/SDMiSaeng.otf') format("opentype");*/
+}
+
+@font-face {
+    font-family: 'NanumBarunpenB';
+    font-style: normal;
+    font-weight: normal;
+    src : local('NanumBarunpenB'), url('../fonts/NanumBarunpenB.ttf') format("opentype"), url('../fonts/NanumBarunpenB.eot');
+    /*src : local('SDMiSaeng'), url('../fonts/SDMiSaeng.otf') format("opentype");*/
+}
+
+
+
+
+.pop-layer .pop-container {
+    padding: 20px 25px;
+}
+
+.pop-layer p.ctxt {
+    padding-top: 10px;
+    color: #666;
+    line-height: 25px;
+}
+
+.pop-layer .btn-r {
+    width: 100%;
+    margin: 10px 0 10px;
+    padding-top: 10px;
+    border-top: 1px solid #DDD;
+    text-align: right;
+}
+
+.pop-layer {
+    display: none;
+    position: absolute;
+    top: 40%;
+    left: 40%;
+    width: 410px;
+    height: auto;
+    background-color: #ffffff;
+    /*border: 5px solid #3571B5;*/
+    z-index: 10;
+}
+
+.dim-layer {
+    display: none;
+    position: fixed;
+    _position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+}
+
+.dim-layer .dimBg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    opacity: .5;
+    filter: alpha(opacity=50);
+}
+
+.dim-layer .pop-layer {
+    display: block;
+}
+
+/* 플리마인드 사용자 게시판 - 파일 다운로드 관련 CSS */
+ul.inbox-download-list{
+    list-style: none;
+}
+.inbox-download-list li{
+    float: left;
+    margin-left: 10px;
+}
+.inbox-download-list li>:first-child>:first-child>.fa {
+    font-size: 150px;
+}
+.inbox-download-list li>:first-child>:first-child {
+    text-align: center;
+    display: block;
+    color: #D6D6D6;
+}
+/* /플리마인드 사용자 게시판 - 파일 다운로드 관련 CSS */
+
+/* 플리마인드 사용자 게시판 - 파일 업로드 관련 CSS */
+.smart-form-plymind * {
+    padding: 0;
+}
+
+.smart-form-plymind .input,  .smart-form-plymind .textarea {
+    position: relative;
+    display: block;
+    font-weight: 400;
+}
+
+.smart-form-plymind .input input {
+    display: block;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    width: 100%;
+}
+
+﻿.smart-form-plymind .input input, .smart-form-plymind .textarea textarea {
+    display: block;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    width: 100%;
+    line-height: 32px;
+    padding: 5px 10px;
+    outline: 0;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 0;
+    background: #fff;
+    font: 13px/16px 'Open Sans',Helvetica,Arial,sans-serif;
+    color: #404040;
+    appearance: normal;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+}
+
+.smart-form-plymind .input-file .button input {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0;
+    font-size: 30px;
+    cursor: pointer;
+    opacity: 0;
+}
+
+.smart-form-plymind .input-file .button {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    float: none;
+    height: 22px;
+    margin: 0;
+    font-size: 13px;
+    line-height: 22px;
+}
+
+.smart-form-plymind .button {
+    background-color: #3276B1;
+    opacity: .8;
+    transition: opacity .2s;
+    -o-transition: opacity .2s;
+    -ms-transition: opacity .2s;
+    -moz-transition: opacity .2s;
+    -webkit-transition: opacity .2s;
+    float: right;
+    height: 31px;
+    overflow: hidden;
+    margin: 10px 0 0 5px;
+    padding: 0 25px;
+    outline: 0;
+    border: 0;
+    font: 300 15px/31px 'Open Sans',Helvetica,Arial,sans-serif;
+    text-decoration: none;
+    color: #fff;
+    cursor: pointer;
+}
+
+.smart-form-plymind .textarea textarea {
+    height: auto;
+    resize: none;
+}
+
+.smart-form-plymind .label {
+    display: block;
+    margin-bottom: 6px;
+    line-height: 19px;
+    font-weight: 400;
+    font-size: 13px;
+    color: #333;
+    text-align: left;
+    white-space: normal;
+}
+
