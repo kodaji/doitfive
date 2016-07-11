@@ -90,13 +90,8 @@
                 <div class="hero">
                     <div class="pull-left login-desc-box-l">
                         <h4 class="paragraph-header" style="width:300px;">
-                            PLYMIND 서비스 통합 관리를 제공 합니다.<br><br>
-                            플리마인드(PlyMind: PLay in Your Mind)는<br>
-                            당신의 Mind에<br>
-                            공감을 Play하고,<br>
-                            위안을 Play하고,<br>
-                            행복을 Play하고,<br>
-                            사소한 배려로 Mind를 선물하고자 합니다.
+                            Doit5 서비스 통합 관리를 제공 합니다.
+                            왜 변경이 되질 않지?
                         </h4>
                         <#--
                         <div class="login-app-icons">
