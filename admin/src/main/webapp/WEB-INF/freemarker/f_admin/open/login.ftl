@@ -92,15 +92,6 @@
                         <h4 class="paragraph-header" style="width:300px;">
                             Doit5 서비스 통합 관리를 제공 합니다.
                             왜 변경이 되질 않지?
-
-
-
-
-
-
-
-
-
                         </h4>
                         <#--
                         <div class="login-app-icons">
